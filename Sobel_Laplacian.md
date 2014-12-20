@@ -132,7 +132,7 @@ int main( int argc, char** argv )
   return 0;
   }
 ```
-#### Поясниния ####
+#### Пояснения ####
 Объявляем переменные:
 ```c++
 Mat src, src_gray;
