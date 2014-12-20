@@ -1,4 +1,3 @@
-Welcome to the opencv wiki!
 ### Оператор Собеля ###
 
 ***
@@ -60,6 +59,18 @@ grad I(x,y) = (dI/dx, dI/dy)
 
 ![](http://docs.opencv.org/_images/math/a938de1258efc69f677cc4ff9d6c430b3530580a.png)
 
+#### Алгоритм ####
+1. Загружаем изображение
+2. Применяем размытие по Гауссу (для уменьшения шума).
+3. Конвертируем изображение в оттенки серого.
+4. Используя оператор Собеля получаем градиент по X.
+5. Используя оператор Собеля получаем градиент по Y.
+6. Аппроксимируем градиенты по X и по Y
+7. Выводим новое изображение.  
+
+Примечание:
+>тобы избежать переполнения целевое изображение должно быть 16-битным (IPL_DEPTH_16S) при 8-битном исходном изображении  
+
 #### Пример кода ####
 Применяет оператор Собеля и выдает на выходе изображение с обнаруженными краями (яркие пиксели на более темном фоне).
 ```c++
@@ -88,6 +99,7 @@ int main( int argc, char** argv )
   if( !src.data )
   { return -1; }
 
+  /// Применяем размытие по Гауссу
   GaussianBlur( src, src, Size(3,3), 0, 0, BORDER_DEFAULT );
 
   /// Конвертируем его
@@ -100,15 +112,15 @@ int main( int argc, char** argv )
   Mat grad_x, grad_y;
   Mat abs_grad_x, abs_grad_y;
 
-  /// Градиент X
+  /// Градиент по X
   //Scharr( src_gray, grad_x, ddepth, 1, 0, scale, delta, BORDER_DEFAULT );
   Sobel( src_gray, grad_x, ddepth, 1, 0, 3, scale, delta, BORDER_DEFAULT );
-  convertScaleAbs( grad_x, abs_grad_x );
+  convertScaleAbs( grad_x, abs_grad_x ); // модуль значения градиента 
 
-  /// Градиент Y
+  /// Градиент по Y
   //Scharr( src_gray, grad_y, ddepth, 0, 1, scale, delta, BORDER_DEFAULT );
   Sobel( src_gray, grad_y, ddepth, 0, 1, 3, scale, delta, BORDER_DEFAULT );
-  convertScaleAbs( grad_y, abs_grad_y );
+  convertScaleAbs( grad_y, abs_grad_y ); // модуль значения градиента 
 
   /// Слияние градиентов (аппроксимация)
   addWeighted( abs_grad_x, 0.5, abs_grad_y, 0.5, 0, grad );
@@ -181,6 +193,12 @@ convertScaleAbs( grad_y, abs_grad_y );
 ```c++
 addWeighted( abs_grad_x, 0.5, abs_grad_y, 0.5, 0, grad );
 ```
+```
+C++: void addWeighted(InputArray src1, double alpha, InputArray src2, double beta, double gamma, OutputArray dst, int dtype=-1)
+```
+Резултат: 
+![](http://docs.opencv.org/_images/math/160c3479896ac799bb5c7d260a052e6b35c463ef.png)
+
 Выводим изображение:
 ```c++
 imshow( window_name, grad );
